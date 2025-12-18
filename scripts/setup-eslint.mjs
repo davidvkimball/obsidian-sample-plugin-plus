@@ -387,6 +387,48 @@ function fixBuiltinModules(esbuildConfigPath, projectRoot) {
       }
     }
     
+    // Ensure outfile is set to "main.js" (always output to root)
+    // Remove any production/development logic that outputs to dist/
+    const hasProdLogic = /const\s+prod\s*=.*process\.argv/.test(content);
+    const hasDistOutput = /outfile.*dist\/main\.js/.test(content);
+    
+    // Remove production logic if it exists (simplify to always output to root)
+    if (hasProdLogic) {
+      // Remove const prod line
+      content = content.replace(/const\s+prod\s*=.*process\.argv[^;]+;\s*\n?/g, '');
+      // Remove dist/ directory creation logic
+      content = content.replace(/if\s*\(prod\s*&&\s*!existsSync\(["']dist["']\)\)\s*\{[^}]+\}\s*\n?/g, '');
+      // Remove production-specific messages
+      content = content.replace(/if\s*\(prod\)\s*\{[^}]+\}\s*else\s*\{[^}]+\}\s*\n?/g, '');
+      updated = true;
+      console.log('✓ Updated esbuild.config.mjs: removed production/development split (always outputs to root)');
+    }
+    
+    // Ensure outfile is set to "main.js" (not dist/main.js)
+    if (hasDistOutput || /outfile:\s*outfile/.test(content)) {
+      // Replace any outfile variable or dist/main.js with simple "main.js"
+      content = content.replace(
+        /(\s+)outfile:\s*(outfile|["']dist\/main\.js["']|["']main\.js["']),?/,
+        '$1outfile: "main.js",'
+      );
+      // Remove outfile variable declaration if it exists
+      content = content.replace(/const\s+outfile\s*=.*?;\s*\n?/g, '');
+      updated = true;
+      console.log('✓ Updated esbuild.config.mjs: fixed outfile to always output to root');
+    } else if (!/outfile:/.test(content)) {
+      // Add outfile if it doesn't exist
+      const contextConfigMatch = content.match(/(esbuild\.context\s*\(\s*\{[^}]*?)(\n\s*\})/s);
+      if (contextConfigMatch) {
+        const indent = contextConfigMatch[1].match(/(\n\s+)$/)?.[1] || '\n\t';
+        content = content.replace(
+          /(esbuild\.context\s*\(\s*\{[^}]*?)(\n\s*\})/s,
+          `$1${indent}outfile: "main.js",$2`
+        );
+        updated = true;
+        console.log('✓ Updated esbuild.config.mjs: added outfile to esbuild.context');
+      }
+    }
+    
     if (updated) {
       writeFileSync(esbuildConfigPath, content, 'utf8');
       return true;

@@ -88,7 +88,7 @@ You can add these enhancements to your existing plugin:
    **What the setup script does automatically:**
    - Updates `package.json` with ESLint 9 dependencies and lint scripts
    - Creates/updates `eslint.config.mjs` (ESLint 9 flat config)
-   - Updates `esbuild.config.mjs` (fixes builtinModules import and adds entry point detection)
+   - Updates `esbuild.config.mjs` (fixes builtinModules import, adds entry point detection, ensures output to root)
    - Creates `scripts/lint-wrapper.mjs` (adds helpful success messages)
    - Creates `.npmrc` (npm configuration)
    - Removes legacy `.eslintrc` files if present
@@ -103,8 +103,8 @@ You can add these enhancements to your existing plugin:
 - Make a copy of this repo as a template with the "Use this template" button
 - Clone your repo to a local development folder
 - Install NodeJS (v16+), then run `npm i`
-- Run `npm run dev` to compile your plugin (builds to `main.js` in root for local testing)
-- For releases, run `npm run build` which creates `dist/main.js`
+- Run `npm run dev` to compile your plugin (builds to `main.js` in root)
+- For releases, run `npm run build` which creates `main.js` in root
 - Reload Obsidian to load the new version of your plugin
 - Enable plugin in settings window
 
@@ -115,8 +115,8 @@ You can add these enhancements to your existing plugin:
 - Clone this repo
 - Make sure your NodeJS is at least v16 (`node --version`)
 - `npm i` to install dependencies
-- **Development**: `npm run dev` - Builds to `main.js` in root (for local testing)
-- **Production**: `npm run build` - Builds to `dist/main.js` (for releases)
+- **Development**: `npm run dev` - Builds to `main.js` in root with watch mode
+- **Production**: `npm run build` - Builds to `main.js` in root (one-time build)
 
 ### Using the AI System
 
@@ -136,12 +136,12 @@ The lint commands use `scripts/lint-wrapper.mjs` which adds helpful success mess
 - Update your `manifest.json` with your new version number and minimum Obsidian version
 - Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"`
 - **Build for production**: Run `npm run build`
-  - Creates all release files in the `dist/` folder:
-    - `dist/main.js` (compiled from TypeScript)
-    - `dist/manifest.json` (copied from root)
-    - `dist/styles.css` (copied from root, if present)
+  - Creates `main.js` in the root directory (compiled from TypeScript)
 - Create new GitHub release using your new version number as the "Tag version" (no `v` prefix)
-- **Upload all files from `dist/` folder** to the release
+- **Upload these files** to the release:
+  - `main.js` (from root)
+  - `manifest.json` (from root)
+  - `styles.css` (from root, if present)
 - Publish the release
 
 > **Tip:** You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
@@ -169,7 +169,7 @@ This template includes GitHub Actions workflows in `.github/workflows/`:
 
 ## Manually Installing the Plugin
 
-- Copy over all files from `dist/` folder (for production builds) or from root (for dev builds) to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`
+- Copy over `main.js`, `manifest.json`, and `styles.css` (if present) from the root directory to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`
 
 ## Funding URL
 

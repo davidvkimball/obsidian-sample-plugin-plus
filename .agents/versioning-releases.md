@@ -12,9 +12,9 @@ Applicability: Both
 ## Plugins
 
 - Bump `version` in `manifest.json` (SemVer) and update `versions.json` to map plugin version → minimum app version.
-- **Build for production**: Run `npm run build` to create production build in `dist/main.js`
+- **Build for production**: Run `npm run build` to create `main.js` in root
 - Create a GitHub release whose tag exactly matches `manifest.json`'s `version`. Do not use a leading `v`.
-- Attach `manifest.json`, `main.js` (from `dist/main.js` if using production builds), and `styles.css` (if present) to the release as individual assets.
+- Attach `main.js`, `manifest.json`, and `styles.css` (if present) to the release as individual assets.
 - After the initial release, follow the process to add/update your plugin in the community catalog as required.
 
 ## Themes

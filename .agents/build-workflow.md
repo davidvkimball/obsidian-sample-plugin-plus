@@ -15,11 +15,11 @@ After making any changes to plugin code:
 
 1. **Run the build** (assume npm is already installed):
    ```powershell
-   npm run build    # Production build (outputs to dist/main.js)
-   npm run dev      # Development build with watch mode (outputs to main.js in root for local testing)
+   npm run build    # Production build (outputs to main.js in root)
+   npm run dev      # Development build with watch mode (outputs to main.js in root)
    ```
    
-   **Note**: Production builds (`npm run build`) output to `dist/main.js` for releases. Development builds (`npm run dev`) output to `main.js` in the root for local testing in Obsidian.
+   **Note**: Both `npm run build` and `npm run dev` output to `main.js` in the root directory. The difference is that `npm run build` is a one-time build, while `npm run dev` watches for changes and rebuilds automatically.
 
 2. **If the build fails with npm/node errors**, then check if npm is installed:
    ```powershell

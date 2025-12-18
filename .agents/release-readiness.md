@@ -24,9 +24,8 @@ These checks can be performed automatically by reading files and scanning code:
 ### File Requirements
 
 - [ ] **`main.js`** exists (compiled output)
-  - For production builds: Check `dist/main.js` (created by `npm run build`)
-  - For development builds: Check `main.js` in root (created by `npm run dev`)
-  - **Note**: Production builds output to `dist/` folder, but you still upload `main.js` (from `dist/main.js`) to GitHub releases
+  - Check `main.js` in root (created by `npm run build` or `npm run dev`)
+  - **Note**: All builds output to `main.js` in the root directory
 - [ ] **`manifest.json`** exists in project root with valid JSON structure
 - [ ] **`styles.css`** exists (if plugin uses custom styles) - optional but should be included if present
 - [ ] **`LICENSE`** file exists in project root
@@ -170,7 +169,7 @@ For reference, key points from [Plugin Guidelines](https://docs.obsidian.md/Plug
 When user asks "is my plugin ready for release?" or similar:
 
 1. **Run automated checks**:
-   - Check file existence (`dist/main.js` for production builds or `main.js` for dev builds, `manifest.json`, `styles.css`, `LICENSE`, `README.md`)
+   - Check file existence (`main.js`, `manifest.json`, `styles.css`, `LICENSE`, `README.md`)
    - Validate `manifest.json` structure and required fields
    - Check version format and consistency
    - Scan code for prohibited patterns (eval, innerHTML misuse, obfuscation, etc.)

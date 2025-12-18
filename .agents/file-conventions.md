@@ -49,7 +49,7 @@ Applicability: Plugin / Theme
   **Best practice**: As your plugin grows beyond a single file, move `main.ts` to `src/` and organize other files there too.
 - **Do not commit build artifacts**: Never commit `node_modules/`, `main.js`, or other generated files to version control.
 - Keep the plugin small. Avoid large dependencies. Prefer browser-compatible packages.
-- Generated output should be placed at the plugin root or `dist/` depending on your build setup. Release artifacts must end up at the top level of the plugin folder in the vault (`main.js`, `manifest.json`, `styles.css`).
+- Generated output should be placed at the plugin root. Release artifacts must end up at the top level of the plugin folder in the vault (`main.js`, `manifest.json`, `styles.css`).
 
 ## Themes
 
@@ -66,7 +66,7 @@ Applicability: Plugin / Theme
     snippet-name.css
   ```
 - **Do not commit build artifacts**: Never commit `node_modules/`, compiled CSS if using SCSS, or other generated files.
-- **Build output location**: Themes with build tools (Grunt, SCSS compilers, etc.) may output to root `theme.css` or `dist/theme.css` depending on the build tool configuration. Simple themes without build tools just have `theme.css` in root.
+- **Build output location**: Themes with build tools (Grunt, SCSS compilers, etc.) may output to root `theme.css` or a build directory depending on the build tool configuration. Simple themes without build tools just have `theme.css` in root.
 - Keep themes lightweight. Avoid complex build processes unless necessary.
 - Release artifacts: `manifest.json` and `theme.css` must be at the top level of the theme folder in the vault.
 

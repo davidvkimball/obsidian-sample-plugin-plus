@@ -326,9 +326,7 @@ project-root/
 **Why this matters**:
 - Having `main.ts` in both locations causes ambiguity - build tools don't know which one to use
 - This leads to build errors, confusion about which file is being compiled
-- The compiled `main.js` output location depends on build mode:
-  - Development builds (`npm run dev`): Outputs to `main.js` in root (for local testing)
-  - Production builds (`npm run build`): Outputs to `dist/main.js` (for releases)
+- The compiled `main.js` always outputs to `main.js` in the root directory
 - You should have only ONE source `main.ts`
 
 **Solution**: 
