@@ -137,6 +137,193 @@ this.addCommand({
 - **No title case**: "Toggle Sidebar" ❌
 - **No all caps**: "TOGGLE SIDEBAR" ❌
 
+### Sentence Case False Positives
+
+The `obsidianmd/ui/sentence-case` rule can sometimes flag legitimate text as errors. These are **false positives** and should be suppressed with ESLint disable comments. Always include a comment explaining why it's a false positive.
+
+#### Common False Positive Scenarios
+
+**1. Proper Nouns (Framework/Product Names)**
+
+When proper nouns like framework or product names appear in the middle of sentences, the linter may incorrectly flag them:
+
+```typescript
+// ❌ Linter error (false positive)
+.setDesc("Choose the default format for copied heading links. Obsidian format respects your Obsidian settings for wikilink vs markdown preference. Astro link uses your link base path from above and converts the heading into kebab-case format as an anchor link")
+
+// ✅ Correct - Suppress with explanation
+// False positive: "Astro" is a proper noun (framework name) and should be capitalized
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.setDesc("Choose the default format for copied heading links. Obsidian format respects your Obsidian settings for wikilink vs markdown preference. Astro link uses your link base path from above and converts the heading into kebab-case format as an anchor link")
+```
+
+**2. Date/Time Format Codes**
+
+Date format placeholders and format codes (like "YYYY-MM-DD", "MMMM", "yyyy") are technical notation, not UI text:
+
+```typescript
+// ❌ Linter error (false positive)
+.setPlaceholder("YYYY-MM-DD")
+.setDesc("Format for the date in properties (e.g., yyyy-mm-dd, MMMM D, yyyy, yyyy-mm-dd HH:mm)")
+
+// ✅ Correct - Suppress with explanation
+// False positive: "YYYY-MM-DD" is a date format placeholder, not UI text
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.setPlaceholder("YYYY-MM-DD")
+
+// False positive: Date format codes (MMMM, yyyy, etc.) are technical notation, not UI text
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.setDesc("Format for the date in properties (e.g., yyyy-mm-dd, MMMM D, yyyy, yyyy-mm-dd HH:mm)")
+```
+
+**3. Technical Notation and Code Examples**
+
+When descriptions contain code examples, file paths, or technical notation:
+
+```typescript
+// ❌ Linter error (false positive)
+.setDesc("Path relative to the Obsidian vault root folder. Use ../.. for two levels up. Leave blank to use the vault folder")
+
+// ✅ Correct - Suppress with explanation
+// False positive: Text is already in sentence case; "Obsidian" is a proper noun and "../.." is a path example
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.setDesc("Path relative to the Obsidian vault root folder. Use ../.. for two levels up. Leave blank to use the vault folder")
+```
+
+**4. Dropdown Options with Proper Nouns**
+
+Dropdown option labels that include proper nouns:
+
+```typescript
+// ❌ Linter error (false positive)
+.addOption("astro", "Astro link")
+
+// ✅ Correct - Suppress with explanation
+// False positive: "Astro" is a proper noun (framework name) and should be capitalized
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.addOption("astro", "Astro link")
+```
+
+#### How to Handle False Positives
+
+**IMPORTANT**: Only use ESLint disable comments for **actual false positives**. Do not use them as a shortcut to avoid fixing legitimate errors. Always verify the text is already correct before adding a disable comment.
+
+1. **Verify it's actually a false positive**: 
+   - Check that the text is already in correct sentence case (first word capitalized, rest lowercase except proper nouns)
+   - Verify the text follows proper grammar and formatting rules
+   - Confirm the linter is incorrectly flagging valid text
+
+2. **Format the disable comment correctly**: Use this exact format with two separate comment lines:
+   ```typescript
+   // False positive: [Brief explanation of why it's a false positive]
+   // eslint-disable-next-line obsidianmd/ui/sentence-case
+   ```
+
+3. **Place the disable comment correctly**: 
+   - The `eslint-disable-next-line` comment **must** be on the line immediately before the line with the error
+   - For method chaining, place it right before the method call that contains the flagged text
+   - The explanation comment goes on the line immediately before the disable comment
+
+4. **Common false positive reasons**:
+   - Proper nouns (framework names, product names, company names)
+   - Technical notation (date format codes, file paths, code examples)
+   - Placeholders that are format strings (not user-facing text)
+   - Text that is already correctly formatted but the linter misinterprets
+
+#### Formatting Rules (Critical)
+
+**Rule 1: Two separate comment lines**
+```typescript
+// ✅ Correct - Two separate lines
+// False positive: Already in sentence case
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.setDesc('Display the button in the CMS toolbar.')
+
+// ❌ Wrong - Combined into one line
+// False positive: Already in sentence case // eslint-disable-next-line obsidianmd/ui/sentence-case
+.setDesc('Display the button in the CMS toolbar.')
+```
+
+**Rule 2: Disable comment must be immediately before the error line**
+```typescript
+// ✅ Correct - Disable comment on line before error
+.setName('Show button')
+// False positive: Already in sentence case
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.setDesc('Display the button in the CMS toolbar.')
+
+// ❌ Wrong - Disable comment too far from error
+// False positive: Already in sentence case
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.setName('Show button')
+.setDesc('Display the button in the CMS toolbar.') // Error is here, but disable is too far up
+```
+
+**Rule 3: For method chaining, place before the specific method**
+```typescript
+// ✅ Correct - Disable comment before .setDesc() where error occurs
+new Setting(containerEl)
+  .setName('Date format')
+  // False positive: Date format codes are technical notation, not UI text
+  // eslint-disable-next-line obsidianmd/ui/sentence-case
+  .setDesc('Format for the date in properties (e.g., yyyy-mm-dd, MMMM D, yyyy)')
+
+// ❌ Wrong - Disable comment before wrong method
+new Setting(containerEl)
+  // False positive: Date format codes are technical notation, not UI text
+  // eslint-disable-next-line obsidianmd/ui/sentence-case
+  .setName('Date format') // Error is not here
+  .setDesc('Format for the date in properties (e.g., yyyy-mm-dd, MMMM D, yyyy)') // Error is here
+```
+
+**Rule 4: For callbacks, place before the method call inside the callback**
+```typescript
+// ✅ Correct - Disable comment before .setPlaceholder() inside callback
+.addText(text => {
+  // False positive: "index" is a placeholder, not UI text
+  // eslint-disable-next-line obsidianmd/ui/sentence-case
+  text.setPlaceholder('index');
+  text.setValue(this.plugin.settings.filename);
+})
+
+// ❌ Wrong - Disable comment outside callback
+// False positive: "index" is a placeholder, not UI text
+// eslint-disable-next-line obsidianmd/ui/sentence-case
+.addText(text => {
+  text.setPlaceholder('index'); // Error is here, but disable is outside callback
+})
+```
+
+#### Example: Complete Pattern
+
+```typescript
+new Setting(containerEl)
+  .setName('Date format')
+  // False positive: Date format codes (MMMM, yyyy, etc.) are technical notation, not UI text
+  // eslint-disable-next-line obsidianmd/ui/sentence-case
+  .setDesc('Format for the date in properties (e.g., yyyy-mm-dd, MMMM D, yyyy, yyyy-mm-dd HH:mm)')
+  .addText((text) => {
+    // False positive: "YYYY-MM-DD" is a date format placeholder, not UI text
+    // eslint-disable-next-line obsidianmd/ui/sentence-case
+    text.setPlaceholder('YYYY-MM-DD');
+    text.setValue(settings.dateFormat);
+  });
+```
+
+#### When NOT to Use Disable Comments
+
+**Do NOT use disable comments to:**
+- Skip fixing legitimate errors
+- Avoid refactoring problematic code
+- Work around type safety issues
+- Suppress warnings you don't understand
+
+**Only use disable comments when:**
+- The text is already correct and the linter is wrong
+- You've verified the text follows all formatting rules
+- You can clearly explain why it's a false positive
+- The error cannot be fixed by changing the code
+
 ---
 
 ## Style Element Creation
