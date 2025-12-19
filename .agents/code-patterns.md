@@ -154,6 +154,10 @@ import { Setting, requireApiVersion } from 'obsidian';
 /**
  * Type definition for SettingGroup constructor
  * Note: SettingGroup may exist at runtime in 1.11.0+ but may not be in TypeScript definitions
+ * 
+ * IMPORTANT: This type signature is inferred from usage patterns. When .ref/obsidian-api/obsidian.d.ts
+ * is available, verify the actual signature there. The signature shown here matches the expected
+ * behavior based on Obsidian's API design patterns.
  */
 type SettingGroupConstructor = new (containerEl: HTMLElement) => {
   setHeading(heading: string): {
@@ -257,25 +261,25 @@ class MySettingTab extends PluginSettingTab {
     // General Settings Group
     const generalGroup = createSettingsGroup(containerEl, "General Settings");
     
-    generalGroup.addSetting((setting) =>
+    generalGroup.addSetting((setting) => {
       setting
         .setName("Enable feature")
         .setDesc("Enable or disable the main feature")
-        .addToggle((toggle) =>
+        .addToggle((toggle) => {
           toggle
             .setValue(this.plugin.settings.generalEnabled)
             .onChange(async (value) => {
               this.plugin.settings.generalEnabled = value;
               await this.plugin.saveSettings();
-            })
-        )
-    );
+            });
+        });
+    });
 
-    generalGroup.addSetting((setting) =>
+    generalGroup.addSetting((setting) => {
       setting
         .setName("Timeout")
         .setDesc("Timeout in milliseconds")
-        .addSlider((slider) =>
+        .addSlider((slider) => {
           slider
             .setLimits(1000, 10000, 500)
             .setValue(this.plugin.settings.generalTimeout)
@@ -283,32 +287,32 @@ class MySettingTab extends PluginSettingTab {
             .onChange(async (value) => {
               this.plugin.settings.generalTimeout = value;
               await this.plugin.saveSettings();
-            })
-        )
-    );
+            });
+        });
+    });
 
     // Advanced Settings Group
     const advancedGroup = createSettingsGroup(containerEl, "Advanced Settings");
     
-    advancedGroup.addSetting((setting) =>
+    advancedGroup.addSetting((setting) => {
       setting
         .setName("Debug mode")
         .setDesc("Enable debug logging")
-        .addToggle((toggle) =>
+        .addToggle((toggle) => {
           toggle
             .setValue(this.plugin.settings.advancedDebug)
             .onChange(async (value) => {
               this.plugin.settings.advancedDebug = value;
               await this.plugin.saveSettings();
-            })
-        )
-    );
+            });
+        });
+    });
 
-    advancedGroup.addSetting((setting) =>
+    advancedGroup.addSetting((setting) => {
       setting
         .setName("Log level")
         .setDesc("Set the logging level")
-        .addDropdown((dropdown) =>
+        .addDropdown((dropdown) => {
           dropdown
             .addOption("info", "Info")
             .addOption("warn", "Warning")
@@ -317,9 +321,9 @@ class MySettingTab extends PluginSettingTab {
             .onChange(async (value) => {
               this.plugin.settings.advancedLogLevel = value;
               await this.plugin.saveSettings();
-            })
-        )
-    );
+            });
+        });
+    });
   }
 }
 

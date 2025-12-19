@@ -521,7 +521,7 @@ new Setting(containerEl)
     })
   );
 
-// ✅ Correct
+// ✅ Correct - Works with direct Setting usage
 new Setting(containerEl)
   .addToggle((toggle) =>
     toggle.onChange(async (value) => {
@@ -529,6 +529,30 @@ new Setting(containerEl)
     })
   );
 ```
+
+**Important**: Option 2 works with direct `Setting` usage, but **does NOT work** with `addSetting` from `createSettingsGroup()`:
+
+```typescript
+// ❌ FAILS with addSetting from createSettingsGroup
+group.addSetting(setting =>
+  setting.addToggle(toggle =>
+    toggle.onChange(async (value) => {
+      await this.plugin.saveData(this.plugin.settings);
+    })
+  )
+);
+
+// ✅ CORRECT - Use block body for addSetting
+group.addSetting(setting => {
+  setting.addToggle(toggle => {
+    toggle.onChange(async (value) => {
+      await this.plugin.saveData(this.plugin.settings);
+    });
+  });
+});
+```
+
+**Why**: `addSetting` expects `(setting: Setting) => void`, but expression body returns the `Setting` object from the chain. You MUST use block body `{ }` with `addSetting`.
 
 ### Common Patterns
 
@@ -558,6 +582,90 @@ new Setting(containerEl)
       })
   );
 ```
+
+---
+
+## Critical: addSetting Callbacks Must Return Void
+
+**Issue**: When using `createSettingsGroup().addSetting()` or `SettingGroup.addSetting()`, the callback MUST return `void`, not a `Setting` object.
+
+**When This Applies**: This issue **only** affects plugins using `SettingGroup` (API 1.11.0+) or the `createSettingsGroup()` compatibility utility. If you're using `new Setting(containerEl)` directly (the most common pattern), you don't have this issue.
+
+**Error Message**: "Promise returned in function argument where a void return was expected" on the `addSetting` line.
+
+**Root Cause**: Expression body arrow functions return the result of the expression. When you chain methods like `setting.setName(...).addToggle(...)`, the expression returns the `Setting` object (for method chaining), but `addSetting` expects a callback that returns `void`.
+
+**❌ Wrong - Expression Body (Returns Setting)**:
+```typescript
+group.addSetting(setting =>
+  setting
+    .setName("Enable feature")
+    .addToggle(toggle => {
+      toggle.setValue(this.plugin.settings.enabled);
+      toggle.onChange(async (value) => {
+        this.plugin.settings.enabled = value;
+        await this.plugin.saveData(this.plugin.settings);
+      });
+    })
+);
+```
+
+**✅ Correct - Block Body (Returns Void)**:
+```typescript
+group.addSetting(setting => {
+  setting
+    .setName("Enable feature")
+    .addToggle(toggle => {
+      toggle.setValue(this.plugin.settings.enabled);
+      toggle.onChange(async (value) => {
+        this.plugin.settings.enabled = value;
+        await this.plugin.saveData(this.plugin.settings);
+      });
+    });
+});
+```
+
+**Key Difference**:
+- **Expression body**: `setting => setting.setName(...)` - Returns the result of the chain (a `Setting` object)
+- **Block body**: `setting => { setting.setName(...); }` - Explicitly returns `void`
+
+**Rule**: Always use block body `{ }` with semicolons when using `addSetting` from `createSettingsGroup()` or `SettingGroup`.
+
+**Note**: This may only fail with strict ESLint rules, but using block body is safer, clearer, and prevents potential type errors.
+
+**Direct Setting Usage (No Issue)**:
+```typescript
+// ✅ This works fine - no addSetting callback
+new Setting(containerEl)
+  .setName("Enable feature")
+  .addToggle((toggle) =>
+    toggle.onChange(async (value) => {
+      await this.plugin.saveData(this.plugin.settings);
+    })
+  );
+```
+
+Most plugins use `new Setting(containerEl)` directly, which doesn't have this restriction. The issue only applies when using `SettingGroup` or the compatibility utility.
+
+---
+
+## Troubleshooting: When Fixes Don't Work
+
+**Problem**: You've tried making `onChange` async, added `void` operators, but still get "Promise returned in function argument" errors.
+
+**Check**: Is the error on the `addSetting` line or the `onChange` line?
+
+- **Error on `addSetting` line**: The callback itself is returning a value (like `Setting`) instead of `void`. Use block body `{ }` instead of expression body.
+- **Error on `onChange` line**: The `onChange` callback is returning a Promise. Make it async and await, or use `void` operator.
+
+**Common Mistake**: Adding eslint-disable comments instead of fixing the root cause. The disable comment should be on the EXACT line with the error, but it's better to fix the actual issue.
+
+**Debugging Steps**:
+1. Check which line the error is on (column number matters)
+2. If it's the `addSetting` callback, ensure it uses block body `{ }`
+3. If it's the `onChange` callback, ensure it's properly async or uses `void`
+4. Run `npm run lint` after each change to verify
+5. Never suppress errors without understanding the root cause
 
 ---
 

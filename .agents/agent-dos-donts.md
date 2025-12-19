@@ -29,4 +29,29 @@ Update frequency: Review periodically for AI agent-specific guidance
 - **Git operations**: Never automatically commit, push, or perform any git operations. All git operations must be left to the user.
 - **Git updates**: When checking for updates to repos in `.ref`, you can use read-only commands like `git fetch` and `git log` to check what's new, but **never automatically pull** - always ask the user first. See [ref-instructions.md](ref-instructions.md) for how to check for updates.
 
+## Fixing Linting Errors
+
+**DO**:
+- Read the error message carefully - note the exact line and column
+- Understand what the error is actually complaining about
+- Check the [linting-fixes-guide.md](linting-fixes-guide.md) for the specific error type
+- Fix the root cause, not the symptom
+- Test with `npm run lint` after each fix
+- Verify `npm run build` still works
+
+**DON'T**:
+- Add eslint-disable comments without understanding why
+- Put disable comments on the wrong line
+- Try the same fix multiple times without understanding why it failed
+- Suppress errors as a shortcut
+- Assume the error location matches where you think the problem is
+- Skip reading the documentation for the specific error type
+
+**When Stuck**:
+1. Read the error message - what line/column is it complaining about?
+2. Check [linting-fixes-guide.md](linting-fixes-guide.md) for that specific error type
+3. Understand the type signature - what does the function expect?
+4. Fix the actual type mismatch, not just suppress the warning
+5. If you've tried the same thing 3 times, stop and re-read the error message
+
 

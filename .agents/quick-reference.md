@@ -178,6 +178,36 @@ cd eslint-plugin && git pull && cd ..
 
 See [testing.md](testing.md) for details.
 
+## Linting: Promise in Void Context
+
+**Quick Fix Guide** - When you see "Promise returned in function argument where a void return was expected":
+
+| Error Location | Cause | Fix |
+|----------------|-------|-----|
+| `addSetting` line (from `SettingGroup`/`createSettingsGroup`) | Callback returns `Setting` instead of `void` | Use block body `{ }` instead of expression body |
+| `onChange` line | Callback returns Promise | Make async + await, or use `void` operator |
+| `addToggle` line | Callback returns Promise | Use block body `{ }` |
+
+**Quick Fix**: If error is on `addSetting`/`addToggle`, change `=>` to `=> { ... }`
+
+**Example**:
+```typescript
+// ❌ Wrong - Expression body (only affects SettingGroup.addSetting)
+group.addSetting(setting => setting.setName("Feature"));
+
+// ✅ Correct - Block body
+group.addSetting(setting => { setting.setName("Feature"); });
+
+// ✅ This works fine - Direct Setting usage (most common pattern)
+new Setting(containerEl)
+  .setName("Feature")
+  .addToggle(toggle => toggle.onChange(async (value) => { ... }));
+```
+
+**Note**: The `addSetting` issue only applies when using `SettingGroup` or `createSettingsGroup()`. Direct `new Setting(containerEl)` usage (the most common pattern) doesn't have this restriction.
+
+See [linting-fixes-guide.md](linting-fixes-guide.md#critical-addsetting-callbacks-must-return-void) for detailed explanation.
+
 ## Common File Structure
 
 ```
