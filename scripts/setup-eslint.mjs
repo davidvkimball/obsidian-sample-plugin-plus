@@ -48,8 +48,10 @@ import process from 'process';
 const args = process.argv.slice(2);
 const hasFix = args.includes('--fix');
 
-// Run ESLint
-const eslint = spawn('npx', ['eslint', '.', ...args], {
+// Run ESLint with --max-warnings 0 to fail on warnings too
+// This ensures we only show success when there are truly no issues
+const eslintArgs = ['eslint', '.', '--max-warnings', '0', ...args];
+const eslint = spawn('npx', eslintArgs, {
 	stdio: 'inherit',
 	shell: true
 });
