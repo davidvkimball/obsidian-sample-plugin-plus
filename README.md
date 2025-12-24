@@ -51,7 +51,7 @@ These tools can significantly improve your plugin development workflow:
 
 [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code.
 
-- This project already has ESLint preconfigured, you can invoke a check by running `npm run lint`
+- This project already has ESLint preconfigured, you can invoke a check by running `pnpm lint`
 - Together with a custom ESLint [plugin](https://github.com/obsidianmd/eslint-plugin-obsidian) for Obsidian specific code guidelines
 - A GitHub action is preconfigured to automatically lint every commit on all branches
 
@@ -60,17 +60,17 @@ These tools can significantly improve your plugin development workflow:
 ### For New Plugins (Using This as a Template)
 
 1. **Use this template** - Click "Use this template" on GitHub or clone this repo
-2. **Install dependencies**: `npm install`
+2. **Install dependencies**: `pnpm install`
 3. **Optional: Setup reference materials** (recommended):
    - **Windows**: `scripts\setup-ref-links.bat`
    - **macOS/Linux**: `./scripts/setup-ref-links.sh`
 4. **Optional: Setup ESLint** (recommended):
    ```bash
    node scripts/setup-eslint.mjs
-   npm install
-   npm run lint
+   pnpm install
+   pnpm lint
    ```
-5. **Start developing**: `npm run dev`
+5. **Start developing**: `pnpm dev`
 
 ### For Existing Plugins (Upgrading to This System)
 
@@ -89,8 +89,8 @@ You can add these enhancements to your existing plugin:
 3. **Setup ESLint** (recommended):
    ```bash
    node scripts/setup-eslint.mjs
-   npm install
-   npm run lint
+   pnpm install
+   pnpm lint
    ```
    
    **What the setup script does automatically:**
@@ -98,7 +98,6 @@ You can add these enhancements to your existing plugin:
    - Creates/updates `eslint.config.mjs` (ESLint 9 flat config)
    - Updates `esbuild.config.mjs` (fixes builtinModules import, adds entry point detection, ensures output to root)
    - Creates `scripts/lint-wrapper.mjs` (adds helpful success messages)
-   - Creates `.npmrc` (npm configuration)
    - Removes legacy `.eslintrc` files if present
    
    **Note:** The script will update your existing `esbuild.config.mjs` and `eslint.config.mjs` files, but it preserves your custom configuration where possible. Review the changes after running the script.
@@ -110,9 +109,9 @@ You can add these enhancements to your existing plugin:
 - Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)!
 - Make a copy of this repo as a template with the "Use this template" button
 - Clone your repo to a local development folder
-- Install NodeJS (v16+), then run `npm i`
-- Run `npm run dev` to compile your plugin (builds to `main.js` in root)
-- For releases, run `npm run build` which creates `main.js` in root
+- Install NodeJS (v16+), then run `pnpm install`
+- Run `pnpm dev` to compile your plugin (builds to `main.js` in root)
+- For releases, run `pnpm build` which creates `main.js` in root
 - Reload Obsidian to load the new version of your plugin
 - Enable plugin in settings window
 
@@ -122,9 +121,11 @@ You can add these enhancements to your existing plugin:
 
 - Clone this repo
 - Make sure your NodeJS is at least v16 (`node --version`)
-- `npm i` to install dependencies
-- **Development**: `npm run dev` - Builds to `main.js` in root with watch mode
-- **Production**: `npm run build` - Builds to `main.js` in root (one-time build)
+- `pnpm install` to install dependencies (or `npm install` - it will automatically proxy to pnpm)
+- **Development**: `pnpm dev` - Builds to `main.js` in root with watch mode
+- **Production**: `pnpm build` - Builds to `main.js` in root (one-time build)
+
+**Note**: This project uses pnpm, but `npm install`, `npm run build`, `npm run dev`, and `npm run lint` will also work for backwards compatibility. The `npm install` command automatically proxies to `pnpm install` via a preinstall hook.
 
 ### Using the AI System
 
@@ -134,8 +135,8 @@ You can add these enhancements to your existing plugin:
 
 ### Using ESLint
 
-- **Check for issues**: `npm run lint` (shows helpful success message when passing)
-- **Auto-fix issues**: `npm run lint:fix`
+- **Check for issues**: `pnpm lint` (shows helpful success message when passing)
+- **Auto-fix issues**: `pnpm lint:fix`
 
 The lint commands use `scripts/lint-wrapper.mjs` which adds helpful success messages. This file is automatically created/updated when you run `node scripts/setup-eslint.mjs`.
 
@@ -143,7 +144,7 @@ The lint commands use `scripts/lint-wrapper.mjs` which adds helpful success mess
 
 - Update your `manifest.json` with your new version number and minimum Obsidian version
 - Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"`
-- **Build for production**: Run `npm run build`
+- **Build for production**: Run `pnpm build`
   - Creates `main.js` in the root directory (compiled from TypeScript)
 - Create new GitHub release using your new version number as the "Tag version" (no `v` prefix)
 - **Upload these files** to the release:
@@ -152,7 +153,7 @@ The lint commands use `scripts/lint-wrapper.mjs` which adds helpful success mess
   - `styles.css` (from root, if present)
 - Publish the release
 
-> **Tip:** You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
+> **Tip:** You can simplify the version bump process by running `pnpm version patch`, `pnpm version minor` or `pnpm version major` after updating `minAppVersion` manually in `manifest.json`.
 
 
 ## Adding Your Plugin to the Community Plugin List
@@ -193,7 +194,7 @@ Or for multiple URLs:
 
 If you're upgrading an existing plugin and encounter issues:
 
-1. **ESLint errors after setup**: Run `npm install` to ensure all dependencies are installed
+1. **ESLint errors after setup**: Run `pnpm install` to ensure all dependencies are installed
 2. **Build errors**: Check that `esbuild.config.mjs` was updated correctly (the setup script should handle this automatically)
 3. **Entry point not found**: The setup script adds entry point detection - verify `esbuild.config.mjs` has the detection logic for both `src/main.ts` and `main.ts`
 4. **Package.json conflicts**: Don't copy `package.json` from the template - the setup script updates your existing one with only the necessary additions
@@ -201,7 +202,7 @@ If you're upgrading an existing plugin and encounter issues:
 ### Common Issues
 
 - **`.ref` folder is empty**: Run the setup script (`scripts\setup-ref-links.bat` or `.sh`)
-- **Linting fails**: Make sure you ran `npm install` after running the ESLint setup script
+- **Linting fails**: Make sure you ran `pnpm install` after running the ESLint setup script
 - **Build fails**: Check that `esbuild.config.mjs` exists and has the correct entry point detection
 
 ## API Documentation

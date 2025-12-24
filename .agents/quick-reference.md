@@ -14,7 +14,7 @@ One-page cheat sheet for common Obsidian plugin development tasks.
 
 | Command | Action |
 |---------|--------|
-| `build` | Run `npm run build` to compile TypeScript |
+| `build` | Run `pnpm build` to compile TypeScript |
 | `sync` or `quick sync` | Pull latest changes from all 6 core `.ref` repos |
 | `what's the latest` or `check updates` | Check what's new in reference repos (read-only, then ask to pull) |
 | `release ready?` | Run comprehensive release readiness checklist |
@@ -39,8 +39,8 @@ One-page cheat sheet for common Obsidian plugin development tasks.
 ## Build Commands
 
 ```powershell
-npm run build    # Build plugin (compile TypeScript to JavaScript)
-npm run dev      # Development build with watch mode
+pnpm build    # Build plugin (compile TypeScript to JavaScript)
+pnpm dev      # Development build with watch mode
 ```
 
 **Always run build after making changes** to catch errors early. See [build-workflow.md](build-workflow.md).
@@ -171,7 +171,7 @@ cd eslint-plugin && git pull && cd ..
 ## Testing
 
 **Manual installation**:
-1. Build plugin (`npm run build`)
+1. Build plugin (`pnpm build`)
 2. Copy `main.js`, `manifest.json`, and `styles.css` (if any) to vault `.obsidian/plugins/<plugin-id>/`
 3. Enable plugin in Obsidian: **Settings → Community plugins**
 4. Reload Obsidian (Ctrl+R / Cmd+R)

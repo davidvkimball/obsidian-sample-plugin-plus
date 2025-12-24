@@ -13,7 +13,7 @@ const hasFix = args.includes('--fix');
 // Run ESLint with --max-warnings 0 to fail on warnings too
 // This ensures we only show success when there are truly no issues
 const eslintArgs = ['eslint', '.', '--max-warnings', '0', ...args];
-const eslint = spawn('npx', eslintArgs, {
+const eslint = spawn('pnpm', ['exec', ...eslintArgs], {
 	stdio: 'inherit',
 	shell: true
 });
