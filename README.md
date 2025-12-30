@@ -42,7 +42,6 @@ These tools can significantly improve your plugin development workflow:
 
 ### Hot Reload Plugins
 
-<<<<<<< HEAD
 **[Hot Reload](https://github.com/pjeby/hot-reload)** - Automatically reload your plugin when code changes. Dramatically speeds up development by eliminating manual reloads.
 
 **[Hot Reload Mobile](https://github.com/shabegom/obsidian-hot-reload-mobile)** - Mobile-compatible version of Hot Reload for testing on mobile devices.
