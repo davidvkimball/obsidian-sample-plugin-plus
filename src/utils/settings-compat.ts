@@ -22,11 +22,13 @@ export interface SettingsContainer {
  * 
  * @param containerEl - The container element for settings
  * @param heading - The heading text for the settings group (optional)
+ * @param manifestId - The plugin's manifest ID for CSS scoping (required for fallback mode)
  * @returns A container that can be used to add settings
  */
 export function createSettingsGroup(
 	containerEl: HTMLElement,
-	heading?: string
+	heading?: string,
+	manifestId?: string
 ): SettingsContainer {
 	// Check if SettingGroup is available (API 1.11.0+)
 	if (requireApiVersion('1.11.0')) {
@@ -51,6 +53,11 @@ export function createSettingsGroup(
 	}
 	
 	// Fallback path (either API < 1.11.0 or SettingGroup not found)
+	// Add scoping class to containerEl to scope CSS to only this plugin's settings
+	if (manifestId) {
+		containerEl.addClass(`${manifestId}-settings-compat`);
+	}
+	
 	if (heading) {
 		const headingEl = containerEl.createDiv('setting-group-heading');
 		headingEl.createEl('h3', { text: heading });

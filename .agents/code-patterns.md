@@ -184,12 +184,14 @@ export interface SettingsContainer {
  * This avoids compile-time TypeScript errors while still working at runtime.
  * 
  * @param containerEl - The container element for settings
- * @param heading - The heading text for the settings group
+ * @param heading - The heading text for the settings group (optional)
+ * @param manifestId - The plugin's manifest ID for CSS scoping (required for fallback mode)
  * @returns A container that can be used to add settings
  */
 export function createSettingsGroup(
   containerEl: HTMLElement,
-  heading: string
+  heading?: string,
+  manifestId?: string
 ): SettingsContainer {
   // Check if SettingGroup is available (API 1.11.0+)
   // requireApiVersion is the official Obsidian API method for version checking
@@ -201,16 +203,26 @@ export function createSettingsGroup(
     const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
     
     // Use SettingGroup - it's guaranteed to exist if requireApiVersion returns true
-    const group = new SettingGroup(containerEl).setHeading(heading);
+    const group = heading 
+      ? new SettingGroup(containerEl).setHeading(heading)
+      : new SettingGroup(containerEl);
     return {
       addSetting(cb: (setting: Setting) => void) {
         group.addSetting(cb);
       }
     };
   } else {
+    // Fallback path (either API < 1.11.0 or SettingGroup not found)
+    // Add scoping class to containerEl to scope CSS to only this plugin's settings
+    if (manifestId) {
+      containerEl.addClass(`${manifestId}-settings-compat`);
+    }
+    
     // Fallback: Create a heading manually and use container directly
-    const headingEl = containerEl.createDiv('setting-group-heading');
-    headingEl.createEl('h3', { text: heading });
+    if (heading) {
+      const headingEl = containerEl.createDiv('setting-group-heading');
+      headingEl.createEl('h3', { text: heading });
+    }
         
     return {
       addSetting(cb: (setting: Setting) => void) {
@@ -259,7 +271,7 @@ class MySettingTab extends PluginSettingTab {
     containerEl.empty();
 
     // General Settings Group
-    const generalGroup = createSettingsGroup(containerEl, "General Settings");
+    const generalGroup = createSettingsGroup(containerEl, "General Settings", "my-plugin");
     
     generalGroup.addSetting((setting) => {
       setting
@@ -292,7 +304,7 @@ class MySettingTab extends PluginSettingTab {
     });
 
     // Advanced Settings Group
-    const advancedGroup = createSettingsGroup(containerEl, "Advanced Settings");
+    const advancedGroup = createSettingsGroup(containerEl, "Advanced Settings", "my-plugin");
     
     advancedGroup.addSetting((setting) => {
       setting
@@ -517,12 +529,14 @@ export interface SettingsContainer {
  * This avoids compile-time TypeScript errors while still working at runtime.
  * 
  * @param containerEl - The container element for settings
- * @param heading - The heading text for the settings group
+ * @param heading - The heading text for the settings group (optional)
+ * @param manifestId - The plugin's manifest ID for CSS scoping (required for fallback mode)
  * @returns A container that can be used to add settings
  */
 export function createSettingsGroup(
   containerEl: HTMLElement,
-  heading: string
+  heading?: string,
+  manifestId?: string
 ): SettingsContainer {
   // Check if SettingGroup is available (API 1.11.0+)
   // requireApiVersion is the official Obsidian API method for version checking
@@ -534,16 +548,26 @@ export function createSettingsGroup(
     const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
     
     // Use SettingGroup - it's guaranteed to exist if requireApiVersion returns true
-    const group = new SettingGroup(containerEl).setHeading(heading);
+    const group = heading 
+      ? new SettingGroup(containerEl).setHeading(heading)
+      : new SettingGroup(containerEl);
     return {
       addSetting(cb: (setting: Setting) => void) {
         group.addSetting(cb);
       }
     };
   } else {
+    // Fallback path (either API < 1.11.0 or SettingGroup not found)
+    // Add scoping class to containerEl to scope CSS to only this plugin's settings
+    if (manifestId) {
+      containerEl.addClass(`${manifestId}-settings-compat`);
+    }
+    
     // Fallback: Create a heading manually and use container directly
-    const headingEl = containerEl.createDiv('setting-group-heading');
-    headingEl.createEl('h3', { text: heading });
+    if (heading) {
+      const headingEl = containerEl.createDiv('setting-group-heading');
+      headingEl.createEl('h3', { text: heading });
+    }
         
     return {
       addSetting(cb: (setting: Setting) => void) {
@@ -592,7 +616,7 @@ class MySettingTab extends PluginSettingTab {
     containerEl.empty();
 
     // General Settings Group
-    const generalGroup = createSettingsGroup(containerEl, "General Settings");
+    const generalGroup = createSettingsGroup(containerEl, "General Settings", "my-plugin");
     
     generalGroup.addSetting((setting) => {
       setting
@@ -625,7 +649,7 @@ class MySettingTab extends PluginSettingTab {
     });
 
     // Advanced Settings Group
-    const advancedGroup = createSettingsGroup(containerEl, "Advanced Settings");
+    const advancedGroup = createSettingsGroup(containerEl, "Advanced Settings", "my-plugin");
     
     advancedGroup.addSetting((setting) => {
       setting
@@ -668,35 +692,30 @@ this.addSettingTab(new MySettingTab(this.app, this));
 
 **Important**: When using the compatibility utility for older Obsidian builds (< 1.11.0), you must add CSS to prevent double divider lines. The fallback creates a heading with class `setting-group-heading`, and without proper CSS, you'll see a double divider (one from the heading's border-bottom and one from the first setting-item's border-top).
 
-Add this CSS to your `styles.css` file:
+**CRITICAL**: The CSS **MUST** be scoped to your plugin's settings container using a manifest-ID-based class to avoid affecting other plugins' settings. Global CSS selectors will impact all settings in Obsidian, not just your plugin's settings.
+
+Add this CSS to your `styles.css` file, replacing `{manifest-id}` with your plugin's manifest ID:
 
 ```css
 /* Group settings compatibility styling for older Obsidian builds (< 1.11.0) */
-/* Base styling for setting-group-heading - drop default border */
-.setting-group-heading h3 {
-    margin: 1.5rem 0 0.75rem;
+/* Scoped to only this plugin's settings container to avoid affecting other plugins */
+.{manifest-id}-settings-compat .setting-group-heading h3 {
+    margin: 0 0 0.75rem;
     padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
     font-size: 1rem;
     font-weight: 600;
     border-bottom: none !important;
 }
-
-.setting-group-heading:first-child h3 {
-    margin-top: 0;
-}
-
-/* Only reintroduce border-bottom if heading is NOT immediately followed by a setting-item */
-/* This prevents double divider lines in older Obsidian builds where the first .setting-item */
-/* already has a border-top, creating a double line with the heading's border-bottom */
-.setting-group-heading:not(:has(+ .setting-item)) h3 {
-    border-bottom: 1px solid var(--background-modifier-border) !important;
-}
 ```
+
+**Example**: If your manifest ID is `sample-plugin`, use `.sample-plugin-settings-compat` as the scoping class.
 
 **How it works**:
 - The CSS uses the `:has()` selector to detect if a `.setting-item` immediately follows the heading
 - If settings exist below the heading, no border-bottom is applied (avoiding double divider)
 - If no settings follow, border-bottom is applied for visual separation
+- The scoping class (`{manifest-id}-settings-compat`) ensures CSS only affects headings within this plugin's settings container
 - This only affects older builds (< 1.11.0) where the compatibility fallback is used
 - On Obsidian 1.11.0+, `SettingGroup` handles styling automatically, so this CSS has no effect
 
